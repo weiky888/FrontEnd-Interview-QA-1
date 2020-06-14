@@ -1,0 +1,737 @@
+1. 行内元素有哪些？块级元素有哪些？空（void）元素有哪些？
+    行内元素有：a b span img input select strong（强调的语气）
+    块级元素有：div ul ol li dl dt dd h1 h2 h3 h4…p
+ 
+    空元素：
+    <br> <hr> <img> <input> <link> <meta>
+    比较少见：
+    <area> <base> <col> <command> <embed>
+     <keygen> <param> <source> <track> <wbr>
+
+
+2. 页面导入样式时，使用link和@import有什么区别？
+
+　　区别1：link是XHTML标签，除了加载CSS外，还可以定义RSS等其他事务；@import属于CSS范畴，只能加载CSS
+ 
+　　区别2：link引用CSS时，在页面载入时同时加载；@import需要页面网页完全载入以后加载。
+ 
+　　区别3：link是XHTML标签，无兼容问题；@import是在CSS2.1提出的，低版本的浏览器不支持。
+ 
+　　区别4：link支持使用Javascript控制DOM去改变样式；而@import不支持
+   
+      从字节优化的角度来看@import url(style.css)最值得推荐
+
+
+3. 常见浏览器内核
+
+   Trident ： 使用Trident内核的浏览器：IE、Maxthon、TT、The World等；
+     
+     Gecko： 使用Gecko内核的浏览器：Netcape6及以上版本、FireFox、MozillaSuite/SeaMonkey；
+  
+    Presto：使用Presto内核的浏览器：Opera7及以上版本；
+    
+     webkit：使用Webkit内核的浏览器：Safari、Chrome。
+
+4. iframe有哪些优缺点？
+    优点：
+            1.用来实现长连接，在websocket不可用的时候作为一种替代，最开始由google发明。Comet：基于 HTTP 长连接的”服务器推”技术
+            2.跨域通信。JavaScript跨域总结与解决办法 ，类似的还有浏览器多页面通信，比如音乐播放器，用户如果打开了多个tab页，应该只有一个在播放。
+            3.历史记录管理，解决ajax化网站响应浏览器前进后退按钮的方案，在html5的history api不可用时作为一种替代。
+            4.纯前端的utf8和gbk编码互转。比如在utf8页面需要生成一个gbk的encodeURIComponent字符串，可以通过页面加载一个gbk的iframe，然后主页面与子页面通信的方式实现转换，这样就不用在页面上插入一个非常巨大的编码 encodeURI 映射表文件
+          
+    缺点：
+            　1.在网页中使用框架结构最大的弊病是搜索引擎的”蜘蛛”程序无法解读这种页面。当”蜘蛛”程序遇到由数个框架组成的网页时，它们只看到框架而 无法找到链接，因此它们会以为该网站是个死站点，并且很快转身离去。对一个网站来说这无异于一场灾难。
+        　　如果你想销售产品，你需要客户;如想得到客户，你首先要让人们访问你的网站，而要做到这一点，你就非求助于搜索引擎不可。你花费了大量的时间、 精力和金钱开设了一家网上商店，却又故意不让搜索引擎检索你，这就好象开家零售商店，却将窗户全部漆成黑色，而且还不挂任何招牌一样。
+ 
+        　　2.框架结构有时会让人感到迷惑，特别是在几个框架中都出现上下、左右滚动条的时候。这些滚动条除了会挤占已经非常有限的页面空间外，还会分散 访问者的注意力。访问者遇到这种网站往往会立刻转身离开。他们会想，既然你的主页如此混乱，那么网站的其他部分也许更不值得浏览。
+ 
+        　　 3.链接导航问题。使用框架结构时，你必须保证正确设置所有的导航链接，如不然，会给访问者带来很大的麻烦。比如被链接的页面出现在导航框架 内，这种情况下访问者便被陷住了，因为此时他没有其他地方可去。
+
+5.  label For 获取热键
+      FOR属性  功能：表示Label标签要绑定的HTML元素，你点击这个标签的时候，所绑定的元素将获取焦点。
+      用法：<Label FOR=”InputBox”>姓名</Label><input ID=”InputBox” type=”text”>
+      label for 绑定获取元素的焦点
+  
+6. css 盒模型
+
+    盒子模型有两种，分别是 ie 盒子模型和标准 w3c 盒子模型；
+    W3C 盒子模型的范围包括 margin、border、padding、content，并且 content 部分不包含其他部分；
+    IE 盒子模型的范围也包括 margin、border、padding、content，和标准 W3C 盒子模型不同的是：IE 盒子模型的 content 部分包含了 border 和 pading；
+
+7.  div 居中问题
+
+        a. margin:  Apx auto;
+        b.确定容器的宽高，这里宽度是必须的，高度可以不设，设置外层的上外边距和左外边距分别是宽高的一半。
+     实现居中关键在于 margin设置与 position:relative.
+    .div {
+     width:500px ;
+     height:300px;
+     margin: -150px 0 0 -250px;
+     position:relative;
+     left:50%;
+     top:50%;
+   }
+
+
+     c.position:absolute;
+        top: 50%;
+        left: 50%; 只能把div定位在以红色圈为起点的位置，加上margin:-100px 0px 0px -100
+
+
+     d. display :flex;     
+      display: -webkit-flex;  
+      -webkit-justify-content: center;  
+     -webkit-align-items: center;  
+      
+    e: display: table
+      display:table-cell   
+
+8. 
+    为什么会出现浮动和什么时候需要清除浮动？清除浮动的方式？
+    a.添加新的元素 、应用 clear：both;
+    b.父级定义 overflow: auto（注意：是父级div也就是这里的 div.outer） 一个对seo比较友好，另个hidden对seo不是太友好
+        在IE6中还需要触发 hasLayout ，例如 zoom：1；
+    c.据说是最高大上的方法 :after
+        方法：（注意：作用于浮动元素的父亲）IE6-7不支持:after，
+        使用 zoom:1触发 hasLayout
+        {zoom:1;} /*==for IE6/7 Maxthon2==*/
+        :after {clear:both;content:’.’;display:block;width: 0;height: 0;visibility:hidden;}
+    d.使用 br标签和其自身的 html属性,<br clear=”all” /> clear=”all | left | right | none” 属性
+    e.父元素也设置浮动
+    f.父元素设置display:table 盒模型属性已经改变，由此造成的一系列问题，得不偿失，不推荐使用
+
+9. 什么是响应式设计？响应式设计的基本原理是什么？如何兼容较低版本的IE？
+    答：一个网站能够兼容多个终端——而不是为每个终端做一个特定的版本。
+        优点：
+            面对不同分辨率设备灵活性强
+            能够快捷解决多设备显示适应问题
+        缺点：
+            兼容各种设备工作量大，效率低下
+            代码累赘，会出现隐藏无用的元素，加载时间加长
+            其实这是一种折中性质的设计解决方案，多方面因素影响而达不到最佳效果
+            一定程度上改变了网站原有的布局结构，会出现用户混淆的情况
+
+
+10. 什么是window对象？什么是document对象？
+    window它是一个顶层对象,而不是另一个对象的属性即浏览器的窗口。
+    document对象是window对象的一个对象属性
+
+
+11. null和undefined的区别？
+    null是一个表示”无”的对象，转为数值时为0；undefined是一个表示”无”的原始值，转为数值时为NaN。
+    null表示”没有对象”，即该处不应该有值
+        （1） 作为函数的参数，表示该函数的参数不是对象。
+        （2） 作为对象原型链的终点。
+    undefined表示”缺少值”，就是此处应该有一个值，但是还没有定义
+        （1）变量被声明了，但没有赋值时，就等于undefined。
+        （2) 调用函数时，应该提供的参数没有提供，该参数等于undefined。
+        （3）对象没有赋值的属性，该属性的值为undefined。
+        （4）函数没有返回值时，默认返回undefined。
+
+12. 关于闭包
+     什么是闭包（closure）？为什么要用它？
+
+    闭包就是能够读取其他函数内部变量的函数
+    由于在Javascript语言中，只有函数内部的子函数才能读取局部变量，因此可以把闭包简单理解成”定义在一个函数内部的函数”。
+    所以，在本质上，闭包就是将函数内部和函数外部连接起来的一座桥梁。
+ 
+    闭包的用途：
+    闭包可以用在许多地方。它的最大用处有两个，一个是前面提到的可以读取函数内部的变量，另一个就是让这些变量的值始终保持在内存中
+    重用变量又不能造成全局污染
+
+13. js中有一个函数，执行对象查找时，永远不会去查找原型，这个函数是什么？
+    hasOwnProperty()函数用于指示一个对象自身(不包括原型链)是否具有指定名称的属性。如果有，返回true，否则返回false。
+    该方法属于Object对象，由于所有的对象都”继承”了Object的对象实例，因此几乎所有的实例对象都可以使用该方法。
+
+14.  js延迟加载的方式有哪些？
+js的延迟加载有助与提高页面的加载速度，以下是延迟加载的几种方法：
+ 
+   1.使用setTimeout延迟方法的加载时间
+     延迟加载js代码，给网页加载留出更多时间
+   $(function (){
+     setTimeout(‘A()’, 1000); //延迟1秒
+   })
+
+   2.让js最后加载
+例如引入外部js脚本文件时，如果放入html的head中,则页面加载前该js脚本就会被加载入页面，而放入body中，则会按照页面从上倒下的加载顺序来运行JavaScript的代码~~~ 所以我们可以把js外部引入的文件放到页面底部，来让js最后引入，从而加快页面加载速度
+
+   3.加载外部文件”defer.js”
+
+15.  js的数据类型都有哪些？
+      字符串、数字、布尔、数组、对象、Null、Undefined
+
+16.浏览器的兼容问题 有哪些 举例；
+      js/css
+      -webkit
+      -moz
+      -os
+      -ms
+
+17.  split() join()的区别？
+     join() 方法用于把数组中的所有元素放入一个字符串。
+     元素是通过指定的分隔符进行分隔的。
+     指定分隔符方法join(“#”);其中#可以是任意
+
+    与之相反的是split()方法：用于把一个字符串分割成字符串数组
+    
+
+18. 关于同步和异步区别？
+    同步就是指一个进程在执行某个请求的时候，若该请求需要一段时间才能返回信息，那么这个进程将会一直等待下去，直到收到返回信息才继续执行下去；
+   异步是指进程不需要一直等下去，而是继续执行下面的操作，不管其他进程的状态。当有消息返回时系统会通知进程进行处理，这样可以提高执行的效率。
+    举浏览器例子：普通B/S模式（同步）AJAX技术（异步）
+      同步：提交请求->等待服务器处理->处理完毕返回 这个期间客户端浏览器不能干任何事
+      异步: 请求通过事件触发->服务器处理（这是浏览器仍然可以作其他事情）->处理完毕
+   生活的例子：大家联系的时候如果使用手机通话，那么只能跟一个人联系，过程中做不了其他任何操作，如果使用短信或者聊天的方式，就可以同时跟很多人聊天，别人收到信息后会回复，在回复之前还可以跟另外的人进行聊天。
+
+
+19.  call，apply都属于Function.prototype的一个方法，它是JavaScript引擎内在实现的，因为属于Function.prototype，所以每个Function对象实例(就是每个方法)都有call，apply属性。
+     既然作为方法的属性，那它们的使用就当然是针对方法的了，这两个方法是容易混淆的，因为它们的作用一样，
+    只是使用方式不同。
+    2、语法：foo.call(this, arg1,arg2,arg3) == foo.apply(this, arguments) == this.foo(arg1, arg2, arg3);
+    3、相同点：两个方法产生的作用是完全一样的。
+    4、不同点：方法传递的参数不同，单个单数传入，另一个可以以数组方式传入
+
+
+20. JQ ajax请求时，如何解释json数据？
+      1.$.JSON(url,params,fun);
+      2.$.ajax({}); dataType:’json’
+     都可以使用$each();进行遍历$.each(object,function(index,item){  });
+
+
+21. 行内元素有哪些？块级元素有哪些？css和盒子模型？
+   在网页中，一个元素占有空间的大小由几个部分构成，其中包括元素的内容（content），元素的内边距（padding），元素的边框（border），元素的外边距（margin）四个部分。这四个部分占有的空间中，有的部分可以显示相应的内容，而有的部分只用来分隔相邻的区域或区域。4个部分一起构成了css中元素的盒模型。
+
+    盒子模型：内容、填充（padding）、边框（border）、外边界（margin）
+    box-sizing:border-box; box-sizing:content-box;
+
+
+22. css选择器有哪些？哪些属性可以继承？优先级算法如何计算？内联和import哪个级别更高？
+    可继承的：font-size font-family color
+    不可继承的：border padding margin background-color width height
+    优先级：!important > [ id > class > tag ] important 比 内联优先级高
+ 
+ 
+23. 提升和优化前端性能，快速访问（对网站的文件和资源进行优化）
+         A、文件合并，减少http请求，合并JavaScript和CSS文件、CSS Sprites、图像映射 （Image Map）和使用Data URI来编码图片
+        B、文件最小化/文件压缩，减少文件下载的体积；常用的工具是YUI Compressor
+        C、使用 CDN 托管，尽可能避开互联网上有可能影响数据传输速度和稳定性的瓶颈和环节，使内容传输的更快、更稳定
+        D、缓存的使用（多个域名来提供缓存）
+        E、GZIP 压缩你的 JS 和 CSS 文件
+
+
+24. 看代码给答案，并进行解释？
+    var a = new Object();
+    a.value=1;
+    b = a;
+    b.value=2;
+    alert(a.value);
+    
+    结果2， 对象的引用，公用栈内存空间
+
+
+25. 至少三种减少页面加载时间的方法。（加载时间指感知的时间或者实际加载时间）
+    1.优化图片
+    2.图像格式的选择（GIF：提供的颜色较少，可用在一些对颜色要求不高的地方）
+    3.优化CSS（压缩合并css，如margin-top,margin-left…)
+    4.网址后加斜杠（如www.campr.com/目录，会判断这个”目录是什么文件类型，或者是目录。）
+    5.标明高度和宽度（如果浏览器没有找到这两个参数，它需要一边下载图片一边计算大小，如果图片很多，浏览器需要不断地调整页面。这不但影响速度，也影响浏览体验。
+    当浏览器知道了高度和宽度参数后，即使图片暂时无法显示，页面上也会腾出图片的空位，然后继续加载后面的内容。从而加载时间快了，浏览体验也更好了。）
+    6.减少http请求（合并文件，合并图片）。
+
+
+26. 更擅长哪些技术  打算熟练掌握一项新技术，那会是什么？
+     nodejs，html5，css3，less ，vue ,mint-ui,webpack...
+
+
+27. 关于缓存 cookies，sessionStorage 和 localStorage 的区别？
+       sessionStorage 和 localStorage 是HTML5 Web Storage API 提供的，可以方便的在web请求之间保存数据。有了本地数据，就可以避免数据在浏览器和服务器间不必要地来回传递。
+       sessionStorage、localStorage、cookie都是在浏览器端存储的数据，其中sessionStorage的概念很特别，引入了一个”浏览器窗口”的概念。sessionStorage是在同源的同窗口（或tab）中，始终存在的数据。也就是说只要这个浏览器窗口没有关闭，即使刷新页面或进入同源另一页面，数据仍然存在。关闭窗口后，sessionStorage即被销毁。同时”独立”打开的不同窗口，即使是同一页面，sessionStorage对象也是不同的
+     cookies会发送到服务器端。其余两个不会。
+           Microsoft指出InternetExplorer8增加cookie限制为每个域名50个，但IE7似乎也允许每个域名50个cookie。
+    　　Firefox每个域名cookie限制为50个。
+    　　Opera每个域名cookie限制为30个。
+    Firefox和Safari允许cookie多达4097个字节，包括名（name）、值（value）和等号。
+    　　Opera允许cookie多达4096个字节，包括：名（name）、值（value）和等号。
+    　　InternetExplorer允许cookie多达4095个字节，包括：名（name）、值（value）和等号。
+
+
+28. 描述下 “reset” CSS 文件的作用和使用它的好处。
+     因为浏览器的品种很多，每个浏览器的默认样式也是不同的，所以定义一个css reset可以使各浏览器的默认样式统一。
+
+
+29. 关于雪碧图   CSS sprites，如何在页面或网站中使用它？
+    CSS Sprites其实就是把网页中一些背景图片整合到一张图片文件中，再利用CSS的”background-image”，”background- repeat”，”background-position”的组合进行背景定位，background-position可以用数字能精确的定位出背景图片的位置。
+
+
+30.  关于隐藏
+     如何视觉隐藏网页内容，只让它们在屏幕阅读器中可用？
+     1.display:none;的缺陷
+         搜索引擎可能认为被隐藏的文字属于垃圾信息而被忽略
+         屏幕阅读器（是为视觉上有障碍的人设计的读取屏幕内容的程序）会忽略被隐藏的文字。
+     2. visibility: hidden ;的缺陷
+         这个大家应该比较熟悉就是隐藏的内容会占据他所应该占据物理空间
+     3.overflow:hidden;一个比较合理的方法
+         .texthidden { display:block;/*统一转化为块级元素*/ overflow: hidden; width: 0; height: 0; }
+         就像上面的一段CSS所展示的方法，将宽度和高度设定为0，然后超过部分隐藏，就会弥补上述一、二方法中的缺陷，也达到了隐藏内容的目的。
+
+
+31.  布局响应式的使用，用过媒体查询，或针对移动端的布局/CSS 吗？
+    @media screen and (min-width: 400px) and (max-width: 700px) { … }
+    @media handheld and (min-width: 20em), screen and (min-width: 20em) {….}
+    媒体查询，就是响应式布局。
+
+
+
+32. svg 样式书写
+    <svg xmlns=”http://www.w3.org/2000/svg” xmlns:xlink=”http://www.w3.org/1999/xlink”>
+ 
+        <circle cx=”40″ cy=”40″ r=”24″ style=”stroke:#006600; fill:#00cc00″/>
+ 
+        <text x=”250″ y=”150″ font-family=”Verdana” font-size=”10px” fill=”blue”>Hello, out there</text>
+ 
+        <defs><style type=”text/css”> <![CDATA[.sample{stroke:blue;fill:#0080FF;opacity:1;}]]></style></defs>
+ 
+        <use xlink:href=”#sample1″ class=”sample”/>
+    </svg>
+
+
+33.  使用 CSS 预处理器的优缺点有哪些？
+    (SASS，Compass，Stylus，LESS)
+    描述下你曾经使用过的 CSS 预处理的优缺点
+
+
+   less 从语言特性的设计到功能的健壮程度和另外两者相比都有一些缺陷，但用 Less 可以满足大多数场景的需求。
+  但相比另外两者，基于 Less 开发类库会复杂得多，实现的代码会比较脏，能实现的功能也会受到 DSL 的制约。
+  比 Stylus 语义更清晰、比 Sass 更接近 CSS 语法，使得刚刚转用 CSS 预编译的开发者能够更平滑地进行切换。
+  Sass 在三者之中历史最久，也吸收了其他两者的一些优点。
+
+从功能上来说 Sass 大而全，语义明晰但是代码很容易显得累赘。
+  主项目基于 Ruby 可能也是一部分人不选择它的理由（Less 开始也是基于 Ruby 开发，后来逐渐转到 less.js 项目中）。
+   Sass 有一个「事实标准」库——Compass，于是对于很多开发者而言省去了选择类库的烦恼，对于提升开发效率也有不小的帮助。
+  Stylus 的语法非常灵活，很多语义都是根据上下文隐含的。基于 Stylus 可以写出非常简洁的代码，但对使用团队的开发素养要求也更高，更需要有良好的开发规范或约定。
+
+  三种预处理器大部分基本功能是类似的。Less 适合帮助团队更快地上手预处理代码的开发，而 Sass 和 Stylus 的差异更在于口味。
+
+
+34. 事件代理
+     JavaScript事件代理则是一种简单的技巧，通过它你可以把事件处理器添加到一个父级元素上，这样就避免了把事件处理器添加到多个子级元素上。
+     当我们需要对很多元素添加事件的时候，可以通过将事件添加到它们的父节点而将事件委托给父节点来触发处理函数。这主要得益于浏览器的事件冒泡机制。
+     事件代理用到了两个在JavaSciprt事件中常被忽略的特性：事件冒泡以及目标元素。
+     function getEventTarget(e) {
+         e = e || window.event;
+         return e.target || e.srcElement;
+     }
+
+
+35. 生成时间戳的两种方法？ + Vue 的Moment 时间插件处理 对时间格式的转化
+    JavaScript 获取当前时间戳：
+      第一种方法：
+      var timestamp = Date.parse(new Date());
+      结果：1280977330000
+
+
+    第二种方法：
+      var timestamp = (new Date()).valueOf();
+      结果：1280977330748
+
+    第三种方法：
+      var timestamp=new Date().getTime()；
+      结果：1280977330748
+
+36.  原型链数组去重
+  用原型链的方式给Array对象添加一个数组去重的方法？
+     Array.prototype.delRepeat=function() {
+      //tempRepeat保存重复数组项
+      var tempRepeat = [];
+      var obj = {}; //保存数组中每项，及其出现的次数
+      //遍历数组
+      for (var i = 0; i < this.length; i++) {
+      if (obj[this[i]]) {
+      if(obj[this[i]]==1) {
+      tempRepeat.push(this[i]);
+      obj[this[i]]++;
+       delete(this[i]);
+       }
+     }
+      else {
+       obj[this[i]] = 1;
+       }
+     }
+      this.filter(function(){ return true;});
+        return tempRepeat;
+      }
+      var a=[1,3,”eirkgm”,4,6,”eirkgm”,3,3,”eirkgm”,3,3,3,”eirkgm”,4];
+      alert(a.delRepeat());
+
+37. 定义一段代码，页面载入完成1分钟后非缓存模式刷新当前页面   //刷新
+window.onload=function()
+{
+  setTimeout(function(){
+    location.reload();//要执行刷新的代码
+  }, 60000);
+}
+
+38. 当一个DOM节点被点击的时候，我们希望能够执行一个函数，应该怎么做？
+  直接在DOM里绑定事件：
+  在JS里通过onclick绑定：xxx.onclick = test
+   通过事件添加进行绑定：addEventListener(xxx, ‘click’, test)
+
+
+39.布尔值判断使用
+   foo = foo || bar ,这行代码是什么意思？为什么要这样写？
+   foo和bar应该都是bool型变量，||是表示 或 的意思，只要foo或者bar有一个为真，那么这个表达式的值就为真，并把它赋给foo
+
+40.用js去除字符串空格？
+方法一：使用replace正则匹配的方法
+  去除所有空格: str = str.replace(/\s*/g,"");
+
+  去除两头空格: str = str.replace(/^\s|\s$/g,"");
+
+  去除左空格： str = str.replace( /^\s*/, “”);
+
+  去除右空格： str = str.replace(/(\s*$)/g, "");
+
+str为要去除空格的字符串，实例如下：
+
+   var str = " 23 23 ";
+   var str2 = str.replace(/\s*/g,"");
+   console.log(str2); // 2323
+方法二：使用str.trim()方法
+   str.trim()局限性：无法去除中间的空格，实例如下：
+   var str = "   xiao  ming   ";
+   var str2 = str.trim();
+  console.log(str2);   //xiao  ming 
+
+
+41. 对DOM节点的添加、移除、移动、复制、创建和查找？
+1）创建新节点
+
+createDocumentFragment() //创建一个DOM片段
+　　createElement() //创建一个具体的元素
+　　createTextNode() //创建一个文本节点
+
+2）添加、移除、替换、插入
+
+appendChild() //添加
+　　removeChild() //移除
+　　replaceChild() //替换
+　　insertBefore() //插入
+
+3）查找
+　　getElementsByTagName() //通过标签名称
+　　getElementsByName() //通过元素的Name属性的值
+　　getElementById() //通过元素Id，唯一性
+
+42.  什么是跨域？跨域请求资源的方法有哪些？
+  1、什么是跨域？
+  由于浏览器同源策略，凡是发送请求url的协议、域名、端口三者之间任意一与当前页面地址不同即为跨域。存在跨域的情况：
+
+ 网络协议不同，如http协议访问https协议。
+
+  端口不同，如80端口访问8080端口。
+
+  域名不同，如qianduanblog.com访问baidu.com。
+
+  子域名不同，如abc.qianduanblog.com访问def.qianduanblog.com。
+
+  域名和域名对应ip,如www.a.com访问20.205.28.90
+
+
+ 解决跨域的方法：
+    (1)、porxy代理
+    
+    定义和用法：proxy代理用于将请求发送给后台服务器，通过服务器来发送请求，然后将请求的结果传递给前端。
+
+    实现方法：通过nginx代理；
+
+    注意点：1、如果你代理的是https协议的请求，那么你的proxy首先需要信任该证书（尤其是自定义证书）或者忽略证书检查，否则你的请求无法成功。
+
+      (2)、CORS 【Cross-Origin Resource Sharing】
+
+     定义和用法：是现代浏览器支持跨域资源请求的一种最常用的方式。
+
+      使用方法：一般需要后端人员在处理请求数据的时候，添加允许跨域的相关操作。如下：
+      res.writeHead(200, {
+         "Content-Type": "text/html; charset=UTF-8",
+         "Access-Control-Allow-Origin":'http://localhost',
+         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+         'Access-Control-Allow-Headers': 'X-Requested-With, Content-Type'
+    });
+
+      定义和用法：通过动态插入一个script标签。浏览器对script的资源引用没有同源限制，同时资源加载到页面后会立即执行（没有阻塞的情况下）。
+
+      特点：通过情况下，通过动态创建script来读取他域的动态资源，获取的数据一般为json格式。
+
+
+43. javascript面向对象中继承实现？
+    面向对象的基本特征有：封闭、继承、多态。
+    
+   在JavaScript中实现继承的方法：
+   原型链（prototype chaining）
+    call()/apply()
+    混合方式(prototype和call()/apply()结合)
+    对象冒充
+
+44.  Array 对象方法
+     concat() 连接两个或更多的数组，并返回结果。
+     join() 把数组的所有元素放入一个字符串。元素通过指定的分隔符进行分隔。
+     pop() 删除并返回数组的最后一个元素。
+    shift() 删除并返回数组的第一个元素
+    push() 向数组的末尾添加一个或更多元素，并返回新的长度。
+    unshift() 向数组的开头添加一个或更多元素，并返回新的长度。
+    reverse() 颠倒数组中元素的顺序。
+    slice() 从某个已有的数组返回选定的元素。
+    splice() 删除元素，并向数组添加新元素。
+    toString() 把数组转换为字符串，并返回结果。
+    toLocaleString() 把数组转换为本地数组，并返回结果。
+
+45. 编写一个方法 去掉一个数组的重复元素
+
+方法一：
+    var arr = [0,2,3,4,4,0,2];
+    var obj = {};
+    var tmp = [];
+    for(var i = 0 ;i< arr.length;i++){
+       if( !obj[arr[i]] ){
+          obj[arr[i]] = 1;
+          tmp.push(arr[i]);
+       }
+    }
+    console.log(tmp);
+    结果如下： [0, 2, 3, 4]
+
+     方法二：
+
+    var arr = [2,3,4,4,5,2,3,6],
+       arr2 = [];
+    for(var i = 0;i< arr.length;i++){
+        if(arr2.indexOf(arr[i]) < 0){
+            arr2.push(arr[i]);
+        }
+    }
+    console.log(arr2);
+
+      方法三：
+
+      var arr = [2,3,4,4,5,2,3,6];
+      var arr2 = arr.filter(function(element,index,self){
+        return self.indexOf(element) === index;
+      });
+    console.log(arr2);
+
+
+     方法四：
+      var arr = [1,2,3,4,2,3];
+      var arr2 = [];
+      for(var i = 0;i< arr.length;i++){
+         if(!arr2.includes(arr[i])){
+            arr2.push(arr[i]);
+        }
+      } 
+     console.log(arr2);
+
+
+     方法五：ES6 提供了新的数据结构 Set。它类似于数组，但是成员的值都是唯一的，没有重复的值。
+
+
+      function unique(arr) {
+        return [...new Set(arr)]
+      }
+     var arr = [1,2,3,3,3,2];
+      unique(arr);
+
+
+46. 基本的选择器（css可能用到）
+    JQuery有几种选择器?
+    (1)、基本选择器：#id，class,element,*;
+
+    (2)、层次选择器：parent > child，prev + next ，prev ~ siblings
+
+    (3)、基本过滤器选择器：:first，:last ，:not ，:even ，:odd ，:eq ，:gt ，:lt
+
+    (4)、内容过滤器选择器： :contains ，:empty ，:has ，:parent
+
+    (5)、可见性过滤器选择器：:hidden ，:visible
+
+    (6)、属性过滤器选择器：[attribute] ，[attribute=value] ，[attribute!=value] ，[attribute^=value] ，[attribute$=value] ，[attribute*=value]
+
+
+47.  href 是指向网络资源所在位置，建立和当前元素（锚点）或当前文档（链接）之间的链接，用于超链接。
+
+     src是指向外部资源的位置，指向的内容将会嵌入到文档中当前标签所在位置；在请求src资源时会将其指向的资源下载并应用到文档内，例如js脚本，img图片和frame等元素。
+
+      当浏览器解析到该元素时，会暂停其他资源的下载和处理，直到将该资源加载、编译、执行完毕，图片和框架等元素也如此，类似于将所指向资源嵌入当前标签内。这也是为什么将js脚本放在底部而不是头部。
+
+
+48. px和em的区别
+
+    相同点：px和em都是长度单位；
+    异同点：px的值是固定的，指定是多少就是多少，计算比较容易。em得值不是固定的，并且em会继承父级元素的字体大小。
+    浏览器的默认字体高都是16px。所以未经调整的浏览器都符合: 1em=16px。那么12px=0.75em, 10px=0.625em。
+
+
+
+49. 左中右布局， 中间自适应
+
+      三列布局，中间宽度自适应，两边定宽
+      中间栏要在浏览器中优先展示渲染
+      允许任意列的高度最高
+      
+        浮动：
+          <style type="text/css">
+          .container {
+            width: 100%;
+            height: 300px;
+          }
+          .container > div {
+              float: left;
+          }
+          .left, .right {
+              width: 60px;
+              height: 100%;
+          }
+          .left {
+              background-color:red;
+          }
+          .right {
+              background-color:blue;
+          }
+          .main {
+              width: calc(100% - 120px);
+              height: 100%;
+              background-color:green;
+          }
+          </style>
+      </head>
+      <body>
+
+      <div class="container">
+          <div class="left"></div>
+          <div class="main"></div>
+          <div class="right"></div>
+      </div>
+
+
+      绝对定位：
+        <style>
+              .container{
+                  width:100%;
+                  height:300px;
+                  position:relative;
+               }
+              .container > div{
+                  position:absolute;
+                  height:100%;
+               }
+
+              .left,.right{
+                 width:100px;
+               }
+              .left{
+                  left:0;
+                  background-color:green;
+               }
+              .right{
+                  right:0;
+                  background-color:blue;
+               }
+              .main{
+                  width: calc(100% - 200px);
+                  left:100px;
+                  background-color:red;
+               }
+          </style>
+      </head>
+      <body>
+
+          <div class="container">
+              <div class="left"></div>
+               <div class="main"></div>
+              <div class="right"></div>
+          </div>
+
+      </body>
+
+
+      flex布局；
+       <style>
+              .container{
+                  width:100%;
+                  height:300px;
+                  position:relative;
+               }
+              .container > div{
+                  position:absolute;
+                  height:100%;
+               }
+
+              .left,.right{
+                 width:100px;
+               }
+              .left{
+                  left:0;
+                  background-color:green;
+               }
+              .right{
+                  right:0;
+                  background-color:blue;
+               }
+              .main{
+                  width: calc(100% - 200px);
+                  left:100px;
+                  background-color:red;
+               }
+          </style>
+      </head>
+      <body>
+
+          <div class="container">
+              <div class="left"></div>
+               <div class="main"></div>
+              <div class="right"></div>
+          </div>
+
+      </body>
+
+
+          <style>
+              .container{
+                  width:100%;
+                  height:300px;
+                  display:flex;
+               }
+              .container > div{
+                  height:100%;
+               }
+
+              .left,.right{
+                 width:60px;
+               }
+              .left{
+                  background-color:green;
+               }
+              .right{
+                  background-color:blue;
+               }
+              .main{
+                  flex:1;
+                  background-color:red;
+               }
+          </style>
+      </head>
+      <body>
+
+          <div class="container">
+              <div class="left"></div>
+               <div class="main"></div>
+              <div class="right"></div>
+          </div>
+
+      </body>
+
+
+50. 关于网络安全问题  所了解到的Web攻击技术
+  （1）XSS（Cross-Site Scripting，跨站脚本攻击）：指通过存在安全漏洞的Web网站注册用户的浏览器内运行非法的HTML标签或者JavaScript进行的一种攻击。
+  （2）SQL注入攻击
+  （3）CSRF（Cross-Site Request Forgeries，跨站点请求伪造）：指攻击者通过设置好的陷阱，强制对已完成的认证用户进行非预期的个人信息或设定信息等某些状态更新。
+
