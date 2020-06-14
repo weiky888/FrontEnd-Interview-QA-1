@@ -1,0 +1,682 @@
+0、手写jsonp的实现
+
+1、Ajax直接请求普通文件存在跨域无权限访问的问题，甭管你是静态页面、动态网页、web服务、WCF，只要是跨域请求，一律不准。
+
+2、不过我们又发现，Web页面上调用js文件时则不受是否跨域的影响（不仅如此，我们还发现凡是拥有”src”这个属性的标签都拥有跨域的能力，比如script、img、iframe）。
+
+3、于是可以判断，当前阶段如果想通过纯web端（ActiveX控件、服务端代理、属于未来的HTML5之Websocket等方式不算）跨域访问数据就只有一种可能，那就是在远程服务器上设法把数据装进js格式的文件里，供客户端调用和进一步处理。
+
+4、恰巧我们已经知道有一种叫做JSON的纯字符数据格式可以简洁的描述复杂数据，更妙的是JSON还被js原生支持，所以在客户端几乎可以随心所欲的处理这种格式的数据。
+
+5、这样子解决方案就呼之欲出了，web客户端通过与调用脚本一模一样的方式，来调用跨域服务器上动态生成的js格式文件（一般以JSON为后缀），显而易见，服务器之所以要动态生成JSON文件，目的就在于把客户端需要的数据装入进去。
+
+6、客户端在对JSON文件调用成功之后，也就获得了自己所需的数据，剩下的就是按照自己需求进行处理和展现了，这种获取远程数据的方式看起来非常像AJAX，但其实并不一样。
+
+7、为了便于客户端使用数据，逐渐形成了一种非正式传输协议，人们把它称作JSONP，该协议的一个要点就是允许用户传递一个callback参数给服务端，然后服务端返回数据时会将这个callback参数作为函数名来包裹住JSON数据，这样客户端就可以随意定制自己的函数来自动处理返回数据了。
+
+JSONP的客户端具体实现： 
+1、我们知道，哪怕跨域js文件中的代码（当然指符合web脚本安全策略的），web页面也是可以无条件执行的。 
+远程服务器remoteserver.com根目录下有个remote.js文件代码如下：
+
+alert('我是远程文件');
+1
+本地服务器localserver.com下有个jsonp.html页面代码如下：
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script type="text/javascript" src="http://remoteserver.com/remote.js"></script>
+</head>
+<body>
+
+</body>
+</html>
+
+     页面将会弹出一个提示窗体，显示跨域调用成功。
+
+2、现在我们在jsonp.html页面定义一个函数，然后在远程remote.js中传入数据进行调用。
+
+jsonp.html页面代码如下：
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script type="text/javascript">
+    var localHandler = function(data){
+        alert('我是本地函数，可以被跨域的remote.js文件调用，远程js带来的数据是：' + data.result);
+    };
+    </script>
+    <script type="text/javascript" src="http://remoteserver.com/remote.js"></script>
+</head>
+<body>
+
+</body>
+</html>
+
+remote.js文件代码如下：
+
+localHandler({"result":"我是远程js带来的数据"});
+
+1运行之后查看结果，页面成功弹出提示窗口，显示本地函数被跨域的远程js调用成功，并且还接收到了远程js带来的数据。 
+很欣喜，跨域远程获取数据的目的基本实现了，但是又一个问题出现了，我怎么让远程js知道它应该调用的本地函数叫什么名字呢？毕竟是jsonp的服务者都要面对很多服务对象，而这些服务对象各自的本地函数都不相同啊？我们接着往下看。
+
+3、聪明的开发者很容易想到，只要服务端提供的js脚本是动态生成的就行了呗，这样调用者可以传一个参数过去告诉服务端 “我想要一段调用XXX函数的js代码，请你返回给我”，于是服务器就可以按照客户端的需求来生成js脚本并响应了。
+
+看jsonp.html页面的代码：
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script type="text/javascript">
+    // 得到航班信息查询结果后的回调函数
+    var flightHandler = function(data){
+        alert('你查询的航班结果是：票价 ' + data.price + ' 元，' + '余票 ' + data.tickets + ' 张。');
+    };
+    // 提供jsonp服务的url地址（不管是什么类型的地址，最终生成的返回值都是一段javascript代码）
+    var url = "http://flightQuery.com/jsonp/flightResult.aspx?code=CA1998&callback=flightHandler";
+    // 创建script标签，设置其属性
+    var script = document.createElement('script');
+    script.setAttribute('src', url);
+    // 把script标签加入head，此时调用开始
+    document.getElementsByTagName('head')[0].appendChild(script); 
+    </script>
+</head>
+<body>
+</body>
+</html>
+
+
+这次的代码变化比较大，不再直接把远程js文件写死，而是编码实现动态查询，而这也正是jsonp客户端实现的核心部分，本例中的重点也就在于如何完成jsonp调用的全过程。 
+我们看到调用的url中传递了一个code参数，告诉服务器我要查的是CA1998次航班的信息，而callback参数则告诉服务器，我的本地回调函数叫做flightHandler，所以请把查询结果传入这个函数中进行调用。 
+OK，服务器很聪明，这个叫做flightResult.aspx的页面生成了一段这样的代码提供给jsonp.html
+
+
+（服务端的实现这里就不演示了，与你选用的语言无关，说到底就是拼接字符串）： 
+HTML 代码
+
+flightHandler({
+    "code": "CA1998",
+    "price": 1780,
+    "tickets": 5
+});
+
+
+我们看到，传递给flightHandler函数的是一个json，它描述了航班的基本信息。运行一下页面，成功弹出提示窗口，jsonp的执行全过程顺利完成！
+
+4、到这里为止的话，相信你已经能够理解jsonp的客户端实现原理了吧？剩下的就是如何把代码封装一下，以便于与用户界面交互，从而实现多次和重复调用。
+
+jQuery如何实现jsonp调用？
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+     <title>Untitled Page</title>
+      <script type="text/javascript" src=jquery.min.js"></script>
+      <script type="text/javascript">
+     jQuery(document).ready(function(){ 
+        $.ajax({
+             type: "get",
+             async: false,
+             url: "http://flightQuery.com/jsonp/flightResult.aspx?code=CA1998",
+             dataType: "jsonp",
+             jsonp: "callback",//传递给请求处理程序或页面的，用以获得jsonp回调函数名的参数名(一般默认为:callback)
+             jsonpCallback:"flightHandler",//自定义的jsonp回调函数名称，默认为jQuery自动生成的随机函数名，也可以写"?"，jQuery会自动为你处理数据
+             success: function(json){
+                 alert('您查询到航班信息：票价： ' + json.price + ' 元，余票： ' + json.tickets + ' 张。');
+             },
+             error: function(){
+                 alert('fail');
+             }
+         });
+     });
+     </script>
+     </head>
+  <body>
+  </body>
+</html>
+
+
+这里针对ajax与jsonp的异同再做一些补充说明：
+
+1、ajax和jsonp这两种技术在调用方式上”看起来”很像，目的也一样，都是请求一个url，然后把服务器返回的数据进行处理，因此jquery和ext等框架都把jsonp作为ajax的一种形式进行了封装。
+
+2、但ajax和jsonp其实本质上是不同的东西。ajax的核心是通过XmlHttpRequest获取非本页内容，而jsonp的核心则是动态添加script标签来调用服务器提供的js脚本。
+
+3、所以说，其实ajax与jsonp的区别不在于是否跨域，ajax通过服务端代理一样可以实现跨域，jsonp本身也不排斥同域的数据的获取。
+
+4、还有就是，jsonp是一种方式或者说非强制性协议，如同ajax一样，它也不一定非要用json格式来传递数据，如果你愿意，字符串都行，只不过这样不利于用jsonp提供公开服务。
+
+总而言之，jsonp不是ajax的一个特例，哪怕jquery等巨头把jsonp封装进了ajax，也不能改变这一点！
+
+2、手写单链表查找倒数第k个节点
+1、为了找出倒数第k个元素，最容易想到的办法是首先遍历一遍单链表，求出整个单链表的长度n，然后将倒数第k个，转换为正数第n-k个，接下来遍历一次就可以得到结果。但是该方法存在一个问题，即需要对链表进行两次遍历，第一次遍历用于求解单链表的长度，第二次遍历用于查找正数第n-k个元素。 
+这种思路的时间复杂度是O(n)，但需要遍历链表两次。
+
+2、如果我们在遍历时维持两个指针，第一个指针从链表的头指针开始遍历，在第k-1步之前，第二个指针保持不动；在第k-1步开始，第二个指针也开始从链表的头指针开始遍历。由于两个指针的距离保持在k-1，当第一个（走在前面的）指针到达链表的尾结点时，第二个指针（走在后面的）指针正好是倒数第k个结点。这种思路只需要遍历链表一次。对于很长的链表，只需要把每个结点从硬盘导入到内存一次。因此这一方法的时间效率前面的方法要高。
+
+class Node{
+    Node next=null;
+    int data;
+    public Node(int data){
+        this.data=data;
+    }
+}
+public class MyLinkedList {
+
+    Node head=null;//链表头的引用
+    public Node findElem(Node head,int k){
+        if(k<1||k>this.length()){
+            return null;
+        }
+        Node p1=head;
+        Node p2=head;
+        for(int i=0;i<k;i++)
+            p1=p1.next;
+        while(p1!=null){
+            p1=p1.next;
+            p2=p2.next;
+        }
+        return p2;
+    }
+    public static void main(String[] args) {
+
+        MyLinkedList list=new MyLinkedList();
+        list.addNode(1);
+        list.addNode(2);
+        list.addNode(3);
+        list.addNode(4);
+        list.addNode(5);
+        MyLinkedList p=new MyLinkedList();
+        p.head=list.findElem(list.head, 3);
+        p.printList();
+
+    }
+
+}
+
+
+3、http请求头，请求体，cookie在哪个里面？url在哪里面？
+参考菜鸟教程HTTP专栏：http://www.runoob.com/http/http-tutorial.html 
+人人三面的时候问我http请求头都有哪些值，答不上来。。GG 
+客户端请求消息 
+ 
+服务器响应消息 
+HTTP响应也由四个部分组成，分别是：状态行、消息报头、空行和响应正文。 
+
+
+实例 
+下面实例是一点典型的使用GET来传递数据的实例： 
+客户端请求：
+
+GET /hello.txt HTTP/1.1
+User-Agent: curl/7.16.3 libcurl/7.16.3 OpenSSL/0.9.7l zlib/1.2.3
+Host: www.example.com
+Accept-Language: en, mi
+
+
+服务端响应:
+
+HTTP/1.1 200 OK
+Date: Mon, 27 Jul 2009 12:28:53 GMT
+Server: Apache
+Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT
+ETag: "34aa387-d-1568eb00"
+Accept-Ranges: bytes
+Content-Length: 51
+Vary: Accept-Encoding
+Content-Type: text/plain
+
+
+输出结果：
+
+Hello World! My payload includes a trailing CRLF.
+
+4、原型链的解释
+饿了么面试的时候问到了，用友也问到了。没答好，GG. 
+
+
+5、对闭包的理解，实现一个暴露内部变量，而且外部可以访问修改的函数
+闭包的作用： 
+匿名自执行函数、缓存、实现封装（主要作用）、实现面向对象中的对象
+
+var person = function(){    
+    //变量作用域为函数内部，外部无法访问    
+    var name = "default";       
+    return {    
+       getName : function(){    
+           return name;    
+       },    
+       setName : function(newName){    
+           name = newName;    
+       }    
+    }    
+}();    
+print(person.name);//直接访问，结果为undefined    
+print(person.getName());    
+person.setName("a");    
+print(person.getName());    
+//得到结果如下：  
+undefined  
+default  
+
+
+6、基本的数据类型
+5个简单数据类型（基本数据类型）+ 1个复杂数据类型 
+undefiend, number string null boolean + object 
+ES6 新增Symbol
+
+7、基本的两列自适应布局
+左定右适应：
+
+#div1{
+    width: 100px;
+    display: inline-block;
+    background-color: black;
+}
+#div2{
+    display: inline-block;
+    position: absolute;
+    left: 100px;
+    right: 0px;
+    background-color: red;
+}
+
+
+8、unix中常用的命令行
+虽然上过linux课，但是命令忘得差不多了 尴尬。。。
+
+9、OSI模型，HTTP,TCP,UDP分别在哪些层
+这个可以参考我另一个博客： 
+http://blog.csdn.net/qq_22944825/article/details/78160659 
+OSI：物理层-数据链路层-网络层-传输层-会话层-表现层-应用层 
+
+
+10、解释平衡二叉树，以及在数据结构中的应用（红黑树）
+11、快排的时间复杂度和空间复杂度
+一个特别好的总结的博客： 
+http://web.jobbole.com/87968/ 
+
+
+12、手写一个jQuery插件
+1、$.extend(src) 
+　　该方法就是将src合并到jquery的全局对象中去，如：
+
+ $.extend({
+      hello:function(){alert('hello');}
+      });
+
+2、$.fn.extend(src) 
+　　该方法将src合并到jquery的实例对象中去，如:
+
+ $.fn.extend({
+  hello:function(){alert('hello');}
+ });
+
+
+13、在jquery方法和原型上面添加方法的区别和实现，以及jquery对象的实现
+参考上一个问题答案~
+
+使用jquery的第一件事就是要使用jquery对象，jquery对象和javascript中的DOM对象是不同的。
+
+什么是jquery对象？jquery将一个DOM对象转化为jquery对象后就可以使用jquery类库提供的各种函数。可以将jquery对象理解为一个类，并且封装了很多的方法，而且可以动态的通过加载插件扩展这个类，类似于C#中的分布类partial class。
+
+除了jQuery工具函数，jQuery的操作都是从jQuery对象开始。比如：
+
+attr(key,value)
+
+<img id="myphoto" alt="my photo" src=""/>
+
+$("#myphoto").attr("src","/pic/1.jpg");
+
+jQuery对象是一个特殊的集合对象。即使只有一个元素，jQuery对象仍然是一个集合。说其特殊是因为实际上jQuery对象是包含一个集合对象和各种函数的类。
+
+14、手写一个递归函数
+ function fact(num) {
+    if (num <= 1) {
+        return 1;             
+    } else {
+        return num * fact(num - 1);            
+    }
+} 
+
+
+以下代码可导致出错：
+
+var anotherFact = fact; 
+ fact = null; 
+ alert(antherFact(4)); //出错 
+
+
+由于fact已经不是函数了，所以出错。 
+用arguments.callee可解决问题，这是一个指向正在执行的函数的指针,arguments.callee返回正在被执行的对现象。 
+新的函数为：
+
+function fact(num) {
+            if (num <= 1) {
+                return 1;
+            } else {
+                return num * arguments.callee(num - 1); //此处更改了。 
+            }
+}
+var anotherFact = fact;
+fact = null;
+alert(antherFact(4)); //结果为24.
+
+15、对前端路由的理解？前后端路由的区别？
+前端的路由和后端的路由在实现技术上不一样，但是原理都是一样的。在 HTML5 的 history API 出现之前，前端的路由都是通过 hash 来实现的，hash 能兼容低版本的浏览器。
+
+http://10.0.0.1/
+http://10.0.0.1/#/about
+http://10.0.0.1/#/concat
+
+服务端路由：每跳转到不同的URL，都是重新访问服务端，然后服务端返回页面，页面也可以是服务端获取数据，然后和模板组合，返回HTML，也可以是直接返回模板HTML，然后由前端JS再去请求数据，使用前端模板和数据进行组合，生成想要的HTML。
+
+前端路由：每跳转到不同的URL都是使用前端的锚点路由，实际上只是JS根据URL来操作DOM元素，根据每个页面需要的去服务端请求数据，返回数据后和模板进行组合，当然模板有可能是请求服务端返回的，这就是 SPA 单页程序。
+
+在js可以通过window.location.hash读取到路径加以解析之后就可以响应不同路径的逻辑处理。
+
+history 是 HTML5 才有的新 API，可以用来操作浏览器的 session history (会话历史)。基于 history 来实现的路由可以和最初的例子中提到的路径规则一样。
+
+H5还新增了一个hashchange事件，也是很有用途的一个新事件：
+
+当页面hash(#)变化时，即会触发hashchange。锚点Hash起到引导浏览器将这次记录推入历史记录栈顶的作用，window.location对象处理“#”的改变并不会重新加载页面，而是将之当成新页面，放入历史栈里。并且，当前进或者后退或者触发hashchange事件时，我们可以在对应的事件处理函数中注册ajax等操作！ 
+但是hashchange这个事件不是每个浏览器都有，低级浏览器需要用轮询检测URL是否在变化，来检测锚点的变化。当锚点内容(location.hash)被操作时，如果锚点内容发生改变浏览器才会将其放入历史栈中，如果锚点内容没发生变化，历史栈并不会增加，并且也不会触发hashchange事件。
+
+16、介绍一下webpack和gulp，以及项目中具体的使用
+17、你对es6的了解
+ 参考 阮一峰博客 
+ http://es6.ruanyifeng.com/
+
+18、解释一下vue和react，以及异同点
+  异同点：vue官网给过答案 
+  https://cn.vuejs.org/v2/guide/comparison.html
+
+只简单的用过vue，用vue写了一个日程表，请赐教哦~
+
+https://yyywwwqqq.coding.me/schedule/dist/
+
+源码地址： 
+https://coding.net/u/yyywwwqqq/p/schedule/git
+
+19、关于平衡二叉树
+    平衡二叉搜索树（Self-balancing binary search tree）又被称为AVL树（有别于AVL算法），且具有以下性质：它是一 棵空树或它的左右两个子树的高度差的绝对值不超过1，并且左右两个子树都是一棵平衡二叉树，同时，平衡二叉树必定是二叉搜索树，反之则不一定。平衡二叉树的常用实现方法有红黑树、AVL、替罪羊树、Treap、伸展树等。 最小二叉平衡树的节点的公式如下 F(n)=F(n-1)+F(n-2)+1 这个类似于一个递归的数列，可以参考Fibonacci(斐波那契)数列，1是根节点，F(n-1)是左子树的节点数量，F(n-2)是右子树的节点数量。
+
+    20、前后端分离的意义以及对前端工程化的理解
+    21、使用css实现一个三角形
+    利用border去画~ 
+    先看一下border的布局，如图： 
+
+    所以三角形： 
+    1.设置宽度、高度为0 
+
+    2.不设置border-top 
+
+    3.设置左右border颜色为transparent–透明 
+
+
+22、用promise手写ajax
+function getJson(url){
+    return new Promise((resolve, reject) =>{
+        var xhr = new XMLHttpRequest();
+        xhr.open('open', url, true);
+        xhr.onreadystatechange = function(){
+            if(this.readyState == 4){
+                if(this.status = 200){
+                    resolve(this.responseText, this)
+                }else{
+                    var resJson = { code: this.status, response: this.response }
+                    reject(resJson, this)    
+                }
+            }
+        }
+        xhr.send()
+    })
+}
+
+function postJSON(url, data) {
+    return new Promise( (resolve, reject) => {
+        var xhr = new XMLHttpRequest()
+        xhr.open("POST", url, true)
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+        xhr.onreadystatechange = function () {
+            if (this.readyState === 4) {
+                if (this.status === 200) {
+                    resolve(JSON.parse(this.responseText), this)
+                } else {
+                    var resJson = { code: this.status, response: this.response }
+                    reject(resJson, this)
+                }
+            }
+        }
+
+        xhr.send(JSON.stringify(data))
+    })
+}
+
+getJSON('/api/v1/xxx')    // => 这里面是就try
+.catch( error => {
+  // dosomething          // => 这里就是catch到了error，如果处理error以及返还合适的值
+})
+.then( value => {
+  // dosomething          // 这里就是final
+})
+
+
+23、手写一个类的继承，并解释一下
+   继承的形式有很多中，js高程里面归纳了其中，我简单说一下前三种。 
+
+    1.原型继承
+    function Parent(){
+        this.name = "parent";
+    }
+    Parent.prototype.getName = function(){
+        return this.name;
+    }
+
+    function Child(){
+        this.name = "child";
+    }
+
+    //继承parent
+    Child.prototype = new Parent();
+
+
+    2.构造函数继承
+
+    function Animal(name){
+        this.name = name;
+        this.eat = function(){
+            consoel.log(this.name + "吃饭");
+        }
+    }
+    var cat = new Animal("maomi");
+    cat.name;
+    cat.eat();
+
+  3.组合继承
+
+24、解释一下call函数和apply函数的作用，以及用法
+    改变this的指向。 
+    this的指向问题，在你不知道的js这本书中（神书）做了四点归纳： 
+    1.默认绑定 （指 直接调用 foo(), this指向window） 
+    2.隐式绑定（obj.foo(), this指向obj 这里会出现很多坑，下面的问题应该会有解答） 
+    3.显示绑定（利用call、apply、bind改变this） 
+    4.new（var cat = new Animal() , this指向cat对象）
+
+25、你说自己抗压能力强，具体表现在哪里？
+   
+26、对前端前景的展望，以后前端会怎么发展
+
+27、手写第一次面试没有写出来的链表问题，要求用es6写
+
+28、平时是怎么学技术的？
+
+29、平时大学里面时间是怎么规划的？
+
+30、接下来有什么计划？这个学期和下个学期的计划是？
+
+31、项目中遇到的难点，或者你学习路上的难点
+
+32、你是通过什么方法和途径来学习前端的
+
+33、手写一个简单遍历算法
+
+34、解释一下react和vue，以及区别
+
+35、你在团队中更倾向于什么角色？
+
+36、对java的理解
+
+37、介绍node.js，并且介绍你用它做的项目
+
+38、手写一个js的深克隆
+
+    function deepCopy(obj){
+        //判断是否是简单数据类型，
+        if(typeof obj == "object"){
+            //复杂数据类型
+            var result = obj.constructor == Array ? [] : {};
+            for(let i in obj){
+                result[i] = typeof obj[i] == "object" ? deepCopy(obj[i]) : obj[i];
+            }
+        }else {
+            //简单数据类型 直接 == 赋值
+            var result = obj;
+        }
+        return result;
+    }
+
+
+39、for函数里面setTimeout异步问题
+
+40、手写归并排序
+    <1>.长度为n(n>1),把该输入序列分成两个长度为n/2的子序列； 
+    <2>.对这两个子序列分别采用归并排序，直到长度n小于2； 
+    <3>.将两个排序好的子序列合并成一个最终的排序序列。
+
+    function mergeSort(arr) { 
+        var len = arr.length;
+        if(len < 2) {
+            return arr;
+        } else {
+            middle = Math.floor(len / 2);
+            var left = arr.slice(0, middle);
+            var right = arr.splice(middle);
+            return merge(mergeSort(left), mergeSort(right));
+        }
+
+    }
+
+    function merge(left, right) {
+        var result = [];
+        while(left.length && right.length) {
+            left[0] > right[0] ? result.push(right.shift()): result.push(left.shift());
+        }
+        if(left.length) {
+            result = result.concat(left);
+        }
+        if(right.length) {
+            result = result.concat(right);
+        }
+        return result;
+    }
+
+
+41、介绍自己的项目
+
+42、实现两个排序数组的合并
+    参考42题中的merge函数。
+
+43、手写一个原生ajax
+    ajax：一种请求数据的方式，不需要刷新整个页面； 
+    ajax的技术核心是 XMLHttpRequest 对象； 
+    ajax 请求过程：创建 XMLHttpRequest 对象、连接服务器、发送请求、接收响应数据；
+
+    一个在stackoverflow的高分回答结合上面的代码，给出get和post的两种不同请求方法：
+
+    var ajax = {};
+    ajax.x = function () {
+        if (typeof XMLHttpRequest !== 'undefined') {
+            return new XMLHttpRequest();
+        }
+        var versions = [
+        "MSXML2.XmlHttp.6.0",
+        "MSXML2.XmlHttp.5.0",
+        "MSXML2.XmlHttp.4.0",
+        "MSXML2.XmlHttp.3.0",
+        "MSXML2.XmlHttp.2.0",
+        "Microsoft.XmlHttp"
+        ];
+
+        var xhr;
+        for (var i = 0; i < versions.length; i++) {
+            try {
+                xhr = new ActiveXObject(versions[i]);
+                break;
+            } catch (e) {
+            }
+        }
+        return xhr;
+    };
+
+    ajax.send = function (url, method, data, success,fail,async) {
+        if (async === undefined) {
+            async = true;
+        }
+        var x = ajax.x();
+        x.open(method, url, async);
+        x.onreadystatechange = function () {
+            if (x.readyState == 4) {
+                var status = x.status;
+                if (status >= 200 && status < 300) {
+                    success && success(x.responseText,x.responseXML)
+                } else {
+                    fail && fail(status);
+                }
+
+            }
+        };
+        if (method == 'POST') {
+            x.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        }
+        x.send(data)
+    };
+
+    ajax.get = function (url, data, callback, fail, async) {
+        var query = [];
+        for (var key in data) {
+            query.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
+        }
+        ajax.send(url + (query.length ? '?' + query.join('&') : ''), 'GET', null, success, fail, async)
+    };
+
+    ajax.post = function (url, data, callback, fail, async) {
+        var query = [];
+        for (var key in data) {
+            query.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
+        }
+        ajax.send(url,'POST', query.join('&'), success, fail, async)
+    };
+
+
+    使用方法：GET
+    ajax.get('/test.php', {foo: 'bar'}, function(response,xml) {
+        //success
+    },
+    function(status){
+        //fail
+    });
+
+
+    POST 
+    ajax.post('/test.php', {foo: 'bar'}, function(response,xml) {
+        //succcess
+
+    },function(status){
+        //fail
+
+    });
