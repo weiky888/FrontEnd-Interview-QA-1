@@ -1,10 +1,13 @@
 # FrontEnd-Interview-QA-1-
 收集前端部分面试试题：
-   试题包括
+
+     
+     
+    试题包括
      >基础知识库类
-     1.0 基础知识模块 html / css / js ES5
-     2.0 基础知识ES6
-     3.0 框架类模块：Angular / Vue /React
+      1.0 基础知识模块 html / css / js ES5
+      2.0 基础知识ES6
+      3.0 框架类模块：Angular / Vue /React
      
      >实战项目的分享类 
       1.0 项目选型和需求分析
