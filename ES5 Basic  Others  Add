@@ -1,0 +1,59 @@
+ 1.0  1rem ,1em, 1vh, 1px
+
+      1)  rem 是全部的长度都相对于html 元素。通常给html 设置一个字体大小，然后其他元素的长度单位为rem。
+
+      2)  em 子元素字体大小的em,相对于父元素的字体大小
+         元素的width /height/ padding/margin 用em话 相对于该元素的font-size
+ 
+      3） vw/vh  viewport width/ height 视窗的宽度和高度，相当于屏幕的宽度和高度的100%
+        处理过程宽度的时候 %单位比较合适。
+
+      4）px像素，相对长度单位，像素px相对于显示屏幕分辨率而言。
+
+2.0  页面制作0.5px 直线
+
+     .line{
+       width: 100%;
+       height: 1px;
+       background: red;
+      margin-top: 10px;
+      transform:scale(0.5) ;
+      -webkit-transform: scale(0.5);
+  }
+
+3.0  css3 制作三角形
+
+    .triangle{
+            width: 0;
+            height: 0;
+            border-width: 100px;
+            border-style: solid;
+            border-color: transparent #0099CC transparent transparent;
+            transform: rotate(90deg); 
+          /*顺时针旋转90°*/
+     }
+   <div class="triangle"></div>
+
+4.0  什么是会话cookie, 什么是持久cookie
+      cookie 是服务器返回的，
+      指定了expire time (有效期)的持久cookie , 没有会话cookie。
+
+5.0  数据请求方式 get ，post 的区别
+
+         1) get 传参方式是通过地址栏的URL传递，是可以直接看到get传递的参数；
+
+         2) post  传参方式参数URL 不可见，get 把请求的数据URL后通过？连接，&参数分割。
+       post  将参数存放在HTTP的包体内；
+
+         3) get传递数据是通过URL进行传递，对传递的数据长度受URL大小限制；
+            URL最大长度是2048个字符。 post没有长度限制。
+
+         4）get 请求数据，浏览器回退不会有影响。post 浏览器后退会重新进行提交。
+ 
+         5）get请求可以被缓存，post不可以被缓存
+
+         6）get请求的只有URL编码，post 支持多种编码方式；
+
+         7）get 只支持ASCII 字符，post  没有字符类型限制；
+             
+          // ASCII 信息交换标准代码，是基于拉丁字母的一套电脑编码系统
