@@ -1,0 +1,241 @@
+原生js实现  -------------------------------------------------------------------------------------------------------------------------------------
+html:
+   <div id="container">
+       <img id="img1" src="images/swipper_img1.jpg" width="400" height="500" onmouseout="dongtupian()" onmouseover="stoptupian()">
+       <ul id="ul1">
+           <li id="li1" onmouseover="tingtupian(1,this)" onmouseout="jixu()"></li>
+           <li id="li2" onmouseover="tingtupian(2,this)" onmouseout="jixu()"></li>
+           <li id="li3" onmouseover="tingtupian(3,this)" onmouseout="jixu()"></li>
+           <li id="li4" onmouseover="tingtupian(4,this)" onmouseout="jixu()"></li>
+           <li id="li5" onmouseover="tingtupian(5,this)" onmouseout="jixu()"></li>
+       </ul>
+   </div>
+ 
+ 
+js:
+  var n=1;//图片标记数
+  var timer;//让图片动的定时器
+  window.onload=init;
+  function init(){
+      timer=window.setInterval("tupian()",2000);
+      beijing=document.getElementById("li1");
+      btnChange()
+  }
+  //换图片函数
+  function tupian(){
+      var obj=document.getElementById("img1");
+      n++;
+      if(n>=6){
+          n=1;
+      }
+      obj.src="images/swipper_img"+n+".jpg";
+      for(var i=1;i<=5;i++){
+          var li1=document.getElementById("li"+i);
+      }
+      beijing=document.getElementById("li"+n);
+      btnChange()
+  }
+  //鼠标放上停止图片的函数
+  function stoptupian(){
+      window.clearInterval(timer);
+  }
+  //鼠标离开图片继续动的函数
+  function dongtupian(){
+      timer=window.setInterval("tupian()",2000);
+  }
+  //鼠标放到li上停止图片查看指定的图片
+  function tingtupian(i,lin){
+      //获得id为img1这个标签
+      var obj=document.getElementById("img1");
+      //改变对象的src属性换图片
+      n=i;
+      obj.src="images/swipper_img"+n+".jpg";
+      //清除定时器
+      window.clearInterval(timer);
+      huanbeijing(lin);
+  }
+  //让定时器继续换图片
+  function jixu(){
+      timer=window.setInterval("tupian()",2000);
+  }
+  function huanbeijing(lin){
+      for(var m=1;m<=5;m++){
+          var li1=document.getElementById("li"+m);
+      }
+  }
+  function btnChange(){
+      Array.from(beijing.parentNode.children).forEach(function(item){
+          item.setAttribute('class','')
+      })
+      beijing.setAttribute('class','active')
+  }
+
+   
+ css:
+     .clothesList{
+          width: 400px;
+          height: 500px;
+          background: red;
+          margin: 50px auto;
+          position: relative;
+          text-align: center;
+      }
+      .clothesList .list_ul{
+          list-style: none;
+          margin: 0;
+          padding: 0;
+      }
+
+      .clothesList .list_ul li{
+          list-style-type: none;
+      }
+
+      .btn_play{
+          display:inline-block;
+          padding: 5px 20px;
+          background: #0000ab;
+          transition: 0.5s;
+          margin: 0 auto;
+          cursor: pointer;
+          color: #ffffff;
+      }
+      .btn_play:hover{
+          background: #25159e;
+      }
+
+
+      #ul1 li{
+           display: inline-block;
+           width: 20px;
+           height: 20px;
+           background: red;
+       }
+      #ul1 li.active{
+          background: green;
+      }
+
+
+
+
+
+
+element-UI  carousel 实现 ----------------------------------------------------------------------------------------------------------------------
+
+ HTML:
+    <div class="container">
+       <el-carousel :interval="3000" ref="cBox" indicator-position="none" height="800px">
+          <el-carousel-item v-for="(item,i) in this.imgAge" :key="i">
+            <div class="imgBox">
+               <img :src="item.pic" class="pic" style="width: 600px; height:800px;"/>
+            </div>
+            <div class="order">{{item.id}}</div>
+          </el-carousel-item>
+       </el-carousel>
+    </div>
+   
+  
+  
+  JS data:
+   imgAge: [
+                {
+                        id: "1",
+                        pic: require('@/assets/image/carousel_01.jpg')
+                    },
+                    {
+                        id: "2",
+                        pic: require('@/assets/image/carousel_02.jpg')
+                    },
+                    {
+                        id: "3",
+                        pic: require('@/assets/image/carousel_03.jpg')
+                    },
+                    {
+                        id: "4",
+                        pic: require('@/assets/image/carousel_04.jpg')
+                    },
+                ]
+                
+    
+    
+   css:
+       .container{ height: 100%}
+       .imgBox{
+          width: 100%;
+          height: 600px;
+         .pic{}
+       }
+      .order{
+         width: 100%;
+         text-align: center;
+         color: red;
+         font-size: 20px;
+         height: 140px;
+         opacity: 1;
+         line-height: 320px;
+      }
+
+
+vue-awesome-swiper 插件实现 -----------------------------------------------------------------------------------------------------------
+
+  html:
+   <swiper ref="mySwiper" :options="swiperOptions">
+     <swiper-slide v-for="(item,index) in banners" :key="index">
+       <img :src="item.swiperImg" width="100%"/>
+     </swiper-slide>
+     <div class="swiper-pagination" slot="pagination"></div>  
+  </swiper>
+   
+   
+   js:
+   import { Swiper, SwiperSlide, directive } from 'vue-awesome-swiper'
+    export default {
+        components: {
+            Swiper,
+            SwiperSlide
+        },
+        directives: {
+            swiper: directive
+        },
+        data() {
+            return {
+                swiperOptions: {
+                    autoplay: true,     ///   把这里的3000改为true就可以了、
+                    grabCursor: true,
+                    setWrapperSize: true,
+                    autoHeight: true,
+                    pagination: '.swiper-pagination',
+                    paginationClickable: true,
+                    mousewheelControl: true,
+                    autoplayDisableOnInteraction: false,
+                    observeParents: true,
+                    loop: true,
+                    observer: true
+                },
+                banners:[
+                    {swiperImg: require('../../assets/image/aweSwiper_img1.jpg')},
+                    {swiperImg: require('../../assets/image/aweSwiper_img2.jpg')},
+                    {swiperImg: require('../../assets/image/aweSwiper_img3.jpg')},
+                    {swiperImg: require('../../assets/image/aweSwiper_img4.jpg')},
+                   ]
+            }
+        },
+        computed: {
+            swiper(){
+                 return this.$refs.mySwiper.$swiper
+            }
+        },
+        mounted() {
+            console.log('Current Swiper instance object', this.swiper)
+            this.swiper.slideTo(1, 1000, false)
+        }
+    }
+   
+
+   css:
+   .swiper-container{
+        background: darkslategray!important;
+        color: #ffffff;
+     }
+   
+   
+   
